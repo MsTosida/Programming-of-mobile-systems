@@ -16,8 +16,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MainPage(),
+      //home: MainPage(),
       //DetailPage() ,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => MainPage(), // Начальный экран (Screen1)
+        '/DetailPage': (context) => DetailPage(), // Второй экран (Screen2)
+      },
     );
   }
 }

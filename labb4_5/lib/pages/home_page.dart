@@ -12,6 +12,13 @@ class HomePage extends StatefulWidget{
   @override
   _HomePageState createState()=> _HomePageState();
 }
+class MyArguments {
+  final String image;
+  final String moun_text;
+  final String location;
+
+  MyArguments(this.image, this.moun_text, this.location);
+}
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
 
@@ -22,7 +29,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     "h.jpg":"Hiking"
   };
 
-  List<String> mountains = ["mountain.png", "mountain2.png", "mountain3.png"];
+  List<String> mountains = ["lib/images/mountain.png", "lib/images/mountain2.png", "lib/images/mountain3.png"];
   List<String> mountains_text = ["Cascade", "Yosemite", "Everest"];
   List<String> mountains_text2 = ["Canada, Banff", "USA, California", "Himalayas"];
 
@@ -94,31 +101,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (BuildContext context, int index) {
                     return
-                      Container(
+                      InkWell(
+                        onTap: () {
+                          MyArguments myArguments = MyArguments(mountains[index], mountains_text[index], mountains_text2[index]);
+                          Navigator.pushNamed(context, '/DetailPage', arguments: myArguments);
+                    },
+                          child: Container(
                         margin: const EdgeInsets.only(top: 10, right: 15),
                       width: 200,
                       height: 300,
-
-                      // decoration: BoxDecoration(
-                      //     borderRadius:  BorderRadius.circular(20),
-                      //     color:  Colors.white,
-                      //     image: DecorationImage(
-                      //         image: AssetImage(
-                      //             "lib/images/" + mountains[index],
-                      //         ),
-                      //         fit: BoxFit.cover
-                      //     )
-                      // ),
-
-                        child: Stack(
+                            child: Stack(
                             fit: StackFit.expand,
                             children: [
                         // Картинка
-                        DecoratedBox(
+                            DecoratedBox(
                         decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
                         image: DecorationImage(
-                          image: AssetImage("lib/images/" + mountains[index]),
+                          image: AssetImage(mountains[index]),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -160,7 +160,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
                             ],
                         ),
 
-                    );
+                    )
+                      );
                   },
 
                 ),
