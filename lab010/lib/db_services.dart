@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'bakery.dart';
+import 'models/bakery.dart';
 
 const String BAKERY_COLLECTION_REF = "bakery";
 

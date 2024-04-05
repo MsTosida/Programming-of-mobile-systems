@@ -1,9 +1,7 @@
-import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:lab010/db_servaces.dart';
-
-import 'bakery.dart';
+import 'package:lab010/db_services.dart';
+import '../models/bakery.dart';
+import 'package:flutter/widgets.dart';
 
 
 class MyHomePage extends StatefulWidget {
@@ -29,6 +27,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: _appBar(),
       body: _buildUI(),
       floatingActionButton: FloatingActionButton(
+        key: ValueKey('addButton'),
         backgroundColor: Colors.green,
         child: Icon(Icons.add, color: Colors.white,),
         onPressed: (){
@@ -54,61 +53,92 @@ class _MyHomePageState extends State<MyHomePage> {
     return SafeArea(
         child: Column(
       children: [
-        _messageslistView(),
+        _messagesListView(),
       ],
     ));
   }
 
-  Widget _messageslistView(){
+  Widget _messagesListView() {
     return SizedBox(
-      height: MediaQuery.sizeOf(context).height * 0.80,
-      width: MediaQuery.sizeOf(context).width,
+      height: MediaQuery.of(context).size.height * 0.80,
+      width: MediaQuery.of(context).size.width,
       child: StreamBuilder(
         stream: _databaseService.getBakeries(),
-        builder: (context,snapshot){
+        builder: (context, snapshot) {
           List bakeries = snapshot.data?.docs ?? [];
-          if(bakeries.isEmpty){
+          if (bakeries.isEmpty) {
             return Center(
-              child: Text('Add a bakery!')
+              child: Text('Add a bakery!'),
             );
           }
           return ListView.builder(
-              itemCount: bakeries.length,
-              itemBuilder: (context, index){
-                Bakery bak = bakeries[index].data();
-                String bakId = bakeries[index].id;
+            itemCount: bakeries.length,
+            itemBuilder: (context, index) {
+              Bakery bak = bakeries[index].data();
+              String bakId = bakeries[index].id;
 
-            return Padding(padding: EdgeInsets.symmetric(
-              vertical: 10,
-              horizontal: 10,
-            ), child: ListTile(
-              tileColor: Colors.green[300],
-              title: Text(bak.name),
-              subtitle: Text("Цена: ${bak.price.toString()} у. е."),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.edit, color: Colors.white,),
-                    onPressed: (){
-                      _editDialog(bak, bak.name, bak.price.toString(), bakId);
-                    },
+              return Draggable(
+                feedback: Container(
+                  width: MediaQuery.of(context).size.width, // Установите ширину
+                  child: Card(
+                    child: ListTile(
+                      tileColor: Colors.blue[300],
+                      title: Text(bak.name),
+                      subtitle: Text("Цена: ${bak.price.toString()} у. е."),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.edit, color: Colors.white),
+                            onPressed: () {
+                              _editDialog(bak, bak.name, bak.price.toString(), bakId);
+                            },
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              _databaseService.deleteBakery(bakId);
+                            },
+                            icon: Icon(Icons.delete, color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  IconButton(
-                      onPressed: (){
-                        _databaseService.deleteBakery(bakId);
-                  },
-                      icon: Icon(Icons.delete, color: Colors.white,))
-                ],
-              )
-
-            ),
-            );
-          });
+                ),
+                childWhenDragging: Container(),
+                feedbackOffset: Offset(0, -20),
+                child: Card(
+                  child: ListTile(
+                    tileColor: Colors.green[300],
+                    title: Text(bak.name),
+                    subtitle: Text("Цена: ${bak.price.toString()} у. е."),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.edit, color: Colors.white),
+                          onPressed: () {
+                            _editDialog(bak, bak.name, bak.price.toString(), bakId);
+                          },
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            _databaseService.deleteBakery(bakId);
+                          },
+                          icon: Icon(Icons.delete, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
         },
       ),
     );
   }
+
 
   Future<void> _editDialog(Bakery bak, String name, String price, String bakId) async{
 
@@ -127,6 +157,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(
                 children: [
                   TextFormField(
+                    key: ValueKey('addField'),
                     controller: nameController,
                     decoration: const InputDecoration(
                         labelText: 'Название'
